@@ -68,7 +68,7 @@ Partial Class Form1
         Me.LinkLabel1.Size = New System.Drawing.Size(81, 20)
         Me.LinkLabel1.TabIndex = 5
         Me.LinkLabel1.TabStop = True
-        Me.LinkLabel1.Text = "Go Home"
+        Me.LinkLabel1.Text = "Go to Home Page"
         Me.LinkLabel1.VisitedLinkColor = System.Drawing.Color.Blue
         '
         'MenuStrip1
@@ -167,6 +167,14 @@ Partial Class Form1
         Me.FlagsConsoleToolStripMenuItem.Name = "FlagsConsoleToolStripMenuItem"
         Me.FlagsConsoleToolStripMenuItem.Size = New System.Drawing.Size(195, 26)
         Me.FlagsConsoleToolStripMenuItem.Text = "Dev Console"
+        '
+        'SurfWebToolStripMenuItem
+        '
+        Me.FlagsConsoleToolStripMenuItem.BackColor = System.Drawing.Color.Black
+        Me.FlagsConsoleToolStripMenuItem.ForeColor = System.Drawing.Color.CornflowerBlue
+        Me.FlagsConsoleToolStripMenuItem.Name = "SurfWebToolStripMenuItem"
+        Me.FlagsConsoleToolStripMenuItem.Size = New System.Drawing.Size(195, 26)
+        Me.FlagsConsoleToolStripMenuItem.Text = "Surf The Web"
         '
         'ClubetteFanArtToolStripMenuItem
         '
