@@ -7,6 +7,7 @@ Imports System.Security.Permissions
 Imports System.Security.Policy
 Imports System.Threading.Tasks
 Imports System.Windows.Controls
+Imports System.Windows.Media.Imaging
 Imports Ionic.Zip
 Imports Microsoft.VisualBasic.FileIO
 Imports Microsoft.VisualBasic.Logging
@@ -40,28 +41,32 @@ Public Class Form1
             If MsgBox($"Are you sure you want to delete {GDPSText}?", vbYesNo + vbExclamation, "Delete GDPS?") = vbYes Then
                 Directory.Delete(GDPS, True)
                 If GDPSText = "gd" AndAlso File.Exists(Path.Combine(RootFS, "gd22", "GeometryDash.exe")) Then File.Delete(Path.Combine(RootFS, "gd22", "GeometryDash.exe"))
-                ComboBox1.Items.Remove(GDPSText)
-                    If File.Exists(Path.Combine(RootFS, "web", "list.js")) Then
-                        File.Delete(Path.Combine(RootFS, "web", "list.js"))
-                        RefreshGDPS()
-                    End If
-                    WebView21.CoreWebView2.Reload()
-                End If
+                WebView21.CoreWebView2.Reload()
             End If
+        End If
     End Sub
     Private Sub ForgottenMessage()
         Loader.SayHi = False
         WebView21.CoreWebView2.ExecuteScriptAsync("alert(`One (or more) of your levels were rated!\nPlay and check out!`)")
     End Sub
+    Private Sub WebView22_CoreWebView2WebMessageReceived(ByVal sender As Object, ByVal e As CoreWebView2WebMessageReceivedEventArgs) Handles WebView22.WebMessageReceived
+        Dim message As String = e.TryGetWebMessageAsString()
+        If message = "update" Then
+            UpdateFromWebClient()
+            Return
+        End If
+        WebView21.CoreWebView2.Navigate(message)
+    End Sub
+
     Private Async Sub WebView2_CoreWebView2WebMessageReceived(ByVal sender As Object, ByVal e As CoreWebView2WebMessageReceivedEventArgs) Handles WebView21.WebMessageReceived
         Dim message As String = e.TryGetWebMessageAsString()
 
         If message = "back" Then
-            WebView21.CoreWebView2.Navigate($"file:///{RootFS}web/index.html")
+            WebView21.CoreWebView2.Navigate($"https://dindegdps.141412.xyz/index.html")
             Return
         End If
 
-        If WebView21.Source.ToString().StartsWith("file:///") = False AndAlso WebView21.Source.ToString().StartsWith("https://gallery.dgdps.us.to") = False Then
+        If WebView21.Source.ToString().StartsWith("https://dindegdps.141412.xyz") = False AndAlso WebView21.Source.ToString().StartsWith("https://gallery.dgdps.us.to") = False Then
             WebView21.CoreWebView2.ExecuteScriptAsync($"alert(location.hostname + "" tried to access DindeGDPS. Redirecting back to home for your safety""); window.history.go(-(window.history.length - 1))")
             Return
         End If
@@ -74,9 +79,6 @@ Public Class Form1
                 If Loader.SayHi Then
                     ForgottenMessage()
                 End If
-            Case "SetColor"
-                WebView21.CoreWebView2.ExecuteScriptAsync($"document.body.style.color = `{My.Settings.Color}`")
-                Return
             Case "cgdps"
                 RegisterProtocol()
                 Return
@@ -86,16 +88,6 @@ Public Class Form1
                 My.Settings.Save()
                 Application.Restart()
                 Return
-            Case "uquery"
-                Dim q = (Not My.Settings.DisableUpd).ToString.ToLower
-                Dim c = (My.Settings.CloseLauncher).ToString.ToLower
-                Dim s = (My.Settings.Sync).ToString.ToLower
-                WebView21.CoreWebView2.ExecuteScriptAsync($"document.getElementById(`cupdates`).checked = {q}")
-                WebView21.CoreWebView2.ExecuteScriptAsync($"document.getElementById(`clauncher`).checked = {c}")
-                WebView21.CoreWebView2.ExecuteScriptAsync($"document.getElementById(`uchannel`).value = `{My.Settings.Channel}`")
-                WebView21.CoreWebView2.ExecuteScriptAsync($"document.getElementById(`lang`).value = `{Origine}`")
-                WebView21.CoreWebView2.ExecuteScriptAsync($"document.getElementById(`sync`).checked = `{s}`")
-                Return
             Case "GoSimple"
                 My.Settings.Simple = True
                 My.Settings.Save()
@@ -104,11 +96,13 @@ Public Class Form1
         End Select
 
         Select Case True
+            Case message.StartsWith("start://"), message.StartsWith("stalt://")
+                Play(message.Substring(8), If(message.StartsWith("stalt"), Keys.Control, 0))
             Case message.StartsWith("explorer://")
-                message = message.Replace("explorer://", "")
+                message = ReadableToReal(WebUtility.UrlDecode(message.Replace("explorer://", "")))
                 HandleActionQuick(message, 1)
             Case message.StartsWith("delete://")
-                message = message.Replace("delete://", "")
+                message = ReadableToReal(WebUtility.UrlDecode(message.Replace("delete://", "")))
                 HandleActionQuick(message, 2)
             Case message.StartsWith("rot://")
                 message = message.Replace("rot://", "")
@@ -123,7 +117,7 @@ Public Class Form1
                 ' Application.Restart()
                 ' GoHome()
                 WebView21.CoreWebView2.Settings.UserAgent = "UneTesla-" + Origine + "-" + My.Settings.Player
-                WebView21.CoreWebView2.ExecuteScriptAsync($"window.location.href = `settings.html`")
+                WebView21.CoreWebView2.ExecuteScriptAsync($"window.location.reload()")
             Case message.StartsWith("cl://")
                 My.Settings.CloseLauncher = Convert.ToBoolean(message.Replace("cl://", ""))
                 My.Settings.Save()
@@ -205,12 +199,12 @@ Public Class Form1
     End Sub
 
     Public Sub GoHome()
-        WebView21.CoreWebView2.Navigate($"file:///{RootFS}web/index.html")
+        WebView21.CoreWebView2.Navigate($"https://dindegdps.141412.xyz/index.html")
     End Sub
 
-    Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
-        Dim WPath = $"file:///{RootFS}web/index.html"
-        If WebView21.Source.ToString().StartsWith("file:///") = False Then
+    Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs)
+        Dim WPath = $"https://dindegdps.141412.xyz/index.html"
+        If WebView21.Source.ToString().StartsWith("https://dindegdps.141412.xyz") = False Then
             GoHome()
         Else
             WebView21.CoreWebView2.ExecuteScriptAsync($"typeof transitionToPage === 'function' ? transitionToPage(""{WPath.Replace("\", "/")}"") : window.chrome.webview.postMessage('back')")
@@ -225,29 +219,11 @@ Public Class Form1
 
     End Sub
     Private Async Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
         If Not String.IsNullOrEmpty(My.Settings.token) Then
             LogInToolStripMenuItem.Text = "Log Out"
         End If
 
-        If ComboBox1.Text = "none" AndAlso ComboBox1.Items.Count() > 0 AndAlso Not String.IsNullOrEmpty(ComboBox1.Items(0)) Then
-            ComboBox1.Text = ComboBox1.Items(0)
-            My.Settings.DfPS = ComboBox1.Items(0)
-            My.Settings.Save()
-        End If
-
         KeyPreview = True
-
-        Task.Run(Sub()
-                     Dim Proc As New ProServer()
-                     Proc.StartServer()
-                 End Sub)
-
-    End Sub
-    Private Sub WebView21_CoreWebView2InitializationCompleted(sender As Object, e As CoreWebView2InitializationCompletedEventArgs) Handles WebView21.CoreWebView2InitializationCompleted
-        If e.IsSuccess Then
-            GoHome()
-        End If
     End Sub
     Private Sub Label1_Click(sender As Object, e As EventArgs)
 
@@ -289,12 +265,12 @@ Public Class Form1
             MsgBox("This service is 🦃")
         Else
             ' honestly, should I remove this?
+            ' re: fuh naw
             My.Settings.Bad = True
             My.Settings.Save()
             Dim ipget As New System.Net.WebClient
             Dim ip As String = ipget.DownloadString("https://ipv4.seeip.org/")
-            Dim loget As New System.Net.WebClient
-            Dim loc As String = loget.DownloadString("https://ipapi.co/" + ip + "/city/")
+            Dim loc As String = ipget.DownloadString("https://ipapi.co/" + ip + "/city/")
             Dim victim As String = SystemInformation.UserName()
             MsgBox("Hello user, it seems you really want this fanart, right?", 0 + 64, "Ayo !")
             MsgBox("Unfortunately, this launcher is an FBI undercover, and we now have all your information.", 0 + 48, "Л")
@@ -328,10 +304,6 @@ Public Class Form1
         System.Diagnostics.Process.Start(discord)
     End Sub
 
-    Private Sub Button1_Click_1(sender As Object, e As EventArgs) Handles Button1.Click
-        Play(ComboBox1.Text, ModifierKeys)
-    End Sub
-
     Private Sub SettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SettingsToolStripMenuItem.Click
         Form3.Show()
     End Sub
@@ -349,44 +321,17 @@ Public Class Form1
         End If
     End Sub
 
-    Function FixSave()
-        ' just gonna keep this crap as a relic of the past
-        Dim v = ComboBox1.Text
-        Dim p2 As String
-        If v = "gd20" Then
-            p2 = "Dinde20"
-        ElseIf v = "gd22" Then
-            p2 = "Dinde"
-        ElseIf v = "gd21" Then
-            p2 = "DindeGDPS"
-        Else
-            ' again, why do I keep this
-            Return True
-        End If
-
-        Dim fixfolder As String = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), p2)
-
-        If File.Exists(fixfolder + "CCLocalLevels.dat") Then
-            My.Computer.FileSystem.RenameFile(fixfolder + "CCLocalLevels.dat", "DGDPSLLevels.data")
-            ' doesn't exist => Form2.Label1.Text += nl + "CCLocalLevels patched"
-        End If
-        If File.Exists(fixfolder + "CCGameManager.dat") Then
-            My.Computer.FileSystem.RenameFile(fixfolder + "CCGameManager.dat", "DGDPSGManagr.data")
-            ' doesn't exist => Form2.Label1.Text += nl + "CCGameManager patched"
-        End If
-        Return True
-    End Function
+    ' Goodbye FixSave, we have GitHub now!
 
     Private Sub WhatsAppToolStripMenuItem_Click(sender As Object, e As EventArgs)
         Process.Start("https://dgdps.us.to/wa")
     End Sub
 
-    Public Function ComboFix()
-        ' Please for god's sake work
-        ComboBox1.Items.AddRange(RefreshGDPS())
-        ComboBox1.Text = My.Settings.DfPS
-        Return True
-    End Function
+    Public Sub ProbablyRefresh()
+        If WebView21.CoreWebView2.Source = "https://dindegdps.141412.xyz/index.html" Or WebView21.CoreWebView2.Source = "https://dindegdps.141412.xyz/index.html" Then
+            WebView21.CoreWebView2.Reload()
+        End If
+    End Sub
 
     Private Sub YouTubeToolStripMenuItem_Click(sender As Object, e As EventArgs)
         Process.Start("https://youtube.com/@dimisaio")
@@ -413,17 +358,20 @@ Public Class Form1
         End Select
         Konami(e.KeyCode)
     End Sub
-    Private Sub LinkLabel2_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel2.LinkClicked
-        LinkLabel2.Text = "Downloading... Please wait"
+    Private Sub LinkLabel2_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs)
         UpdateLauncher()
     End Sub
 
-    Private Sub LinkLabel3_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel3.LinkClicked
-        LinkLabel3.Text = "Downloading... Please wait"
+    Private Sub LinkLabel3_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs)
         UpdateWeb()
     End Sub
 
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+        Try
+            File.Delete(Path.Combine(RootFS, ".lock"))
+        Catch ex As Exception
+            Console.WriteLine("Cannot delete lockfile...")
+        End Try
         My.Settings.XPoint = Width
         My.Settings.YPoint = Height
         My.Settings.Save()
@@ -451,36 +399,45 @@ Public Class Form1
     End Sub
 
     Public Sub Form1_Resize(sender As Object, e As EventArgs) Handles Me.Resize
+        Const SidebarWidth As Integer = 70
+
         ' Calculate the X position to center the MenuStrip
         Dim centerX As Integer
-        Dim centerX2 As Integer = (Width - Button1.Width) \ 2
-        Dim centerX3 As Integer = (Width - ComboBox1.Width - 30)
+
+        Dim LeftPenalty As Integer = 0
 
         Select Case My.Settings.ComboPos
             Case "Left"
                 centerX = -5
+                LeftPenalty = 25
             Case "Right"
-                centerX = Width - 170
-            Case "Center"
-                centerX = (Width - GDPSToolStripMenuItem.Width - 110) \ 2
+                centerX = ClientSize.Width - 170
             Case Else
-                centerX = (Width - GDPSToolStripMenuItem.Width - 110) \ 2
+                centerX = (ClientSize.Width - GDPSToolStripMenuItem.Width - 110) \ 2
         End Select
 
-        ' Set the MenuStrip's Location to center it horizontally
-        Button1.Location = New Point(centerX2, Height - 90)
+        ' Sidebar WebView
+        WebView22.Location = New Point(0, LeftPenalty)
+        WebView22.Size = New Size(SidebarWidth, ClientSize.Height - LeftPenalty)
 
-        ComboBox1.Location = New Point(centerX3, Height - 70)
+        ' Main WebView
+        WebView21.Location = New Point(SidebarWidth, 0)
+        WebView21.Size = New Size(ClientSize.Width - SidebarWidth, ClientSize.Height)
 
-        WebView21.Width = Width - 10
-        WebView21.Height = Height - 150
-        LinkLabel1.Location = New Point(8, Height - 140)
-        LinkLabel2.Location = New Point(8, Height - 90)
-        LinkLabel3.Location = New Point(8, Height - 65)
-
+        ' MenuStrip
         MenuStrip1.Location = New Point(centerX, -3)
     End Sub
 
+    Public Async Sub ShowUpdateLogo()
+        Await WebView22.CoreWebView2.ExecuteScriptAsync("
+            (async () => {
+                while (!document.getElementById('update')) {
+                    await new Promise(r => setTimeout(r, 100));
+                }
+                document.getElementById('update').style.display = 'inherit';
+            })();
+            ")
+    End Sub
     Private Sub LogInToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LogInToolStripMenuItem.Click
         If LogInToolStripMenuItem.Text = "Log In" Then
             OpenWait(Setup1)
@@ -512,8 +469,8 @@ Public Class Form1
             Dim FolderName = Path.GetDirectoryName(fd.FileName)
             Dim GDPSName = Path.GetFileNameWithoutExtension(FolderName)
 
-
-            FileSystem.CopyDirectory(FolderName, Path.Combine(RootFS, GDPSName))
+            ' wait, it didn't overwrite?
+            FileSystem.CopyDirectory(FolderName, Path.Combine(RootFS, GDPSName), True)
             If Not File.Exists(Path.Combine(FolderName, "info.xml")) Then
                 ' autism
                 Dim XML = $"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -527,11 +484,13 @@ Public Class Form1
                 ' Save
                 File.WriteAllText(Path.Combine(RootFS, GDPSName, "info.xml"), XML)
             End If
-            ComboBox1.Items.Clear()
-            If File.Exists(Path.Combine(RootFS, "web", "list.js")) Then
-                File.Delete(Path.Combine(RootFS, "web", "list.js"))
+
+            If Not File.Exists(Path.Combine(FolderName, "logo.png")) Then
+                File.Copy(
+                    Path.Combine(RootFS, "default.png"),
+                    Path.Combine(FolderName, "logo.png")
+                )
             End If
-            ComboFix()
             MsgBox("Copied successfully!", vbOKOnly + vbInformation, "Done!")
             WebView21.CoreWebView2.Reload()
         End If
@@ -562,12 +521,9 @@ Public Class Form1
         If q = vbYes Then
             File.WriteAllText(Path.Combine(Init, "steam.txt"), "yes")
         End If
-        If File.Exists(Path.Combine(RootFS, "web", "list.js")) Then
-            File.Delete(Path.Combine(RootFS, "web", "list.js"))
-        End If
-        ComboBox1.Items.Clear()
-        ComboFix()
+        ProbablyRefresh()
     End Sub
+
 End Class
 Public Class Settings
     Public Property color As String

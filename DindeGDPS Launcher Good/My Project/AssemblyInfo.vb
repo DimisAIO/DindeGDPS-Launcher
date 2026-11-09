@@ -13,7 +13,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("DindeGDPS GDPS Launcher")>
 <Assembly: AssemblyCompany("DimisAIO")>
 <Assembly: AssemblyProduct("DindeGDPS Launcher")>
-<Assembly: AssemblyCopyright("Copyright DimisAIO ©  2024")>
+<Assembly: AssemblyCopyright("Copyright DimisAIO ©  2026")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
@@ -32,6 +32,6 @@ Imports System.Runtime.InteropServices
 ' en utilisant '*', comme indiqué ci-dessous :
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("2025.10.13")>
-<Assembly: AssemblyFileVersion("2025.10.13")>
+<Assembly: AssemblyVersion("2026.11.07")>
+<Assembly: AssemblyFileVersion("2026.11.07")>
 <Assembly: NeutralResourcesLanguage("")>

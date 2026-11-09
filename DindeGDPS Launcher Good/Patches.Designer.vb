@@ -25,15 +25,17 @@ Partial Class Patches
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Patches))
         Me.Label1 = New System.Windows.Forms.Label()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.Button1 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(12, 9)
+        Me.Label1.Location = New System.Drawing.Point(16, 11)
+        Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(66, 24)
+        Me.Label1.Size = New System.Drawing.Size(86, 29)
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "Label1"
         '
@@ -42,25 +44,38 @@ Partial Class Patches
         Me.TextBox1.BackColor = System.Drawing.Color.Black
         Me.TextBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TextBox1.ForeColor = System.Drawing.Color.Lime
-        Me.TextBox1.Location = New System.Drawing.Point(12, 70)
+        Me.TextBox1.Location = New System.Drawing.Point(16, 86)
+        Me.TextBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ReadOnly = True
-        Me.TextBox1.Size = New System.Drawing.Size(283, 318)
+        Me.TextBox1.Size = New System.Drawing.Size(376, 349)
         Me.TextBox1.TabIndex = 1
+        '
+        'Button1
+        '
+        Me.Button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button1.Location = New System.Drawing.Point(16, 444)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(376, 23)
+        Me.Button1.TabIndex = 2
+        Me.Button1.Text = "Continue"
+        Me.Button1.UseVisualStyleBackColor = True
         '
         'Patches
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Black
-        Me.ClientSize = New System.Drawing.Size(307, 397)
+        Me.ClientSize = New System.Drawing.Size(407, 479)
+        Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.TextBox1)
         Me.Controls.Add(Me.Label1)
         Me.ForeColor = System.Drawing.Color.Lime
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
-        Me.MaximumSize = New System.Drawing.Size(323, 436)
-        Me.MinimumSize = New System.Drawing.Size(323, 436)
+        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.MaximumSize = New System.Drawing.Size(425, 526)
+        Me.MinimumSize = New System.Drawing.Size(425, 526)
         Me.Name = "Patches"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "What's new?"
@@ -71,4 +86,5 @@ Partial Class Patches
 
     Friend WithEvents Label1 As Label
     Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents Button1 As Button
 End Class

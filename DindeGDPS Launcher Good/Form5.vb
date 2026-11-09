@@ -51,9 +51,9 @@ Public Class Form5
                 Dim author As XmlNode = config.SelectSingleNode("author")
                 If gameNode IsNot Nothing And author IsNot Nothing Then
                     psname = gameNode.InnerText
-                    Dim official As String() = {"gd19", "gd20", "gd21", "gd22", "gd22-old"}
+                    Dim official As String() = VersionParser.official
                     If official.Any(Function(value) psname = value) Then
-                        MsgBox("The GDPS cannot use gd19, gd20, gd21, gd22-old or gd22 as name! Changing it will fix it", vbOKOnly + vbCritical, "DindeGDPS")
+                        MsgBox("The GDPS cannot use gd19-22 or similar as name! Changing it will fix it", vbOKOnly + vbCritical, "DindeGDPS")
                         Return False
                     End If
                     Me.url = $"{url}/{gameNode.InnerText}.zip"

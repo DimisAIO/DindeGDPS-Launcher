@@ -23,13 +23,13 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
-        Me.LinkLabel1 = New System.Windows.Forms.LinkLabel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.GDPSToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.LogInToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GD19ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripMenuItem2 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripMenuItem3 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SpecialToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CodebreakerToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -49,27 +49,11 @@ Partial Class Form1
         Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.WebView21 = New Microsoft.Web.WebView2.WinForms.WebView2()
-        Me.Button1 = New System.Windows.Forms.Button()
-        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
-        Me.LinkLabel2 = New System.Windows.Forms.LinkLabel()
-        Me.LinkLabel3 = New System.Windows.Forms.LinkLabel()
-        Me.ToolStripMenuItem3 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.WebView22 = New Microsoft.Web.WebView2.WinForms.WebView2()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.WebView21, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.WebView22, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
-        '
-        'LinkLabel1
-        '
-        Me.LinkLabel1.AutoSize = True
-        Me.LinkLabel1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!)
-        Me.LinkLabel1.LinkColor = System.Drawing.Color.CornflowerBlue
-        Me.LinkLabel1.Location = New System.Drawing.Point(8, 417)
-        Me.LinkLabel1.Name = "LinkLabel1"
-        Me.LinkLabel1.Size = New System.Drawing.Size(81, 20)
-        Me.LinkLabel1.TabIndex = 5
-        Me.LinkLabel1.TabStop = True
-        Me.LinkLabel1.Text = "Go Home"
-        Me.LinkLabel1.VisitedLinkColor = System.Drawing.Color.Blue
         '
         'MenuStrip1
         '
@@ -81,8 +65,10 @@ Partial Class Form1
         Me.MenuStrip1.ImageScalingSize = New System.Drawing.Size(24, 24)
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.GDPSToolStripMenuItem, Me.SpecialToolStripMenuItem, Me.HelpToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(179, 28)
+        Me.MenuStrip1.MaximumSize = New System.Drawing.Size(160, 25)
+        Me.MenuStrip1.MinimumSize = New System.Drawing.Size(160, 25)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(418, 25)
+        Me.MenuStrip1.Size = New System.Drawing.Size(160, 25)
         Me.MenuStrip1.TabIndex = 7
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -100,7 +86,7 @@ Partial Class Form1
         Me.LogInToolStripMenuItem.BackColor = System.Drawing.Color.Black
         Me.LogInToolStripMenuItem.ForeColor = System.Drawing.Color.CornflowerBlue
         Me.LogInToolStripMenuItem.Name = "LogInToolStripMenuItem"
-        Me.LogInToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.LogInToolStripMenuItem.Size = New System.Drawing.Size(209, 26)
         Me.LogInToolStripMenuItem.Text = "Log In"
         '
         'GD19ToolStripMenuItem
@@ -108,7 +94,7 @@ Partial Class Form1
         Me.GD19ToolStripMenuItem.BackColor = System.Drawing.Color.Black
         Me.GD19ToolStripMenuItem.ForeColor = System.Drawing.Color.CornflowerBlue
         Me.GD19ToolStripMenuItem.Name = "GD19ToolStripMenuItem"
-        Me.GD19ToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.GD19ToolStripMenuItem.Size = New System.Drawing.Size(209, 26)
         Me.GD19ToolStripMenuItem.Text = "Instance Manager"
         '
         'SettingsToolStripMenuItem
@@ -116,7 +102,7 @@ Partial Class Form1
         Me.SettingsToolStripMenuItem.BackColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.SettingsToolStripMenuItem.ForeColor = System.Drawing.Color.CornflowerBlue
         Me.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem"
-        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(209, 26)
         Me.SettingsToolStripMenuItem.Text = "Legacy Settings"
         '
         'ToolStripMenuItem2
@@ -124,15 +110,23 @@ Partial Class Form1
         Me.ToolStripMenuItem2.BackColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.ToolStripMenuItem2.ForeColor = System.Drawing.Color.CornflowerBlue
         Me.ToolStripMenuItem2.Name = "ToolStripMenuItem2"
-        Me.ToolStripMenuItem2.Size = New System.Drawing.Size(224, 26)
+        Me.ToolStripMenuItem2.Size = New System.Drawing.Size(209, 26)
         Me.ToolStripMenuItem2.Text = "Import GDPS"
+        '
+        'ToolStripMenuItem3
+        '
+        Me.ToolStripMenuItem3.BackColor = System.Drawing.SystemColors.ActiveCaptionText
+        Me.ToolStripMenuItem3.ForeColor = System.Drawing.Color.CornflowerBlue
+        Me.ToolStripMenuItem3.Name = "ToolStripMenuItem3"
+        Me.ToolStripMenuItem3.Size = New System.Drawing.Size(209, 26)
+        Me.ToolStripMenuItem3.Text = "Add GD Entry"
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.BackColor = System.Drawing.Color.Black
         Me.ExitToolStripMenuItem.ForeColor = System.Drawing.Color.CornflowerBlue
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(224, 26)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(209, 26)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'SpecialToolStripMenuItem
@@ -286,83 +280,30 @@ Partial Class Form1
         Me.WebView21.AllowExternalDrop = True
         Me.WebView21.CreationProperties = Nothing
         Me.WebView21.DefaultBackgroundColor = System.Drawing.Color.White
-        Me.WebView21.Location = New System.Drawing.Point(1, 25)
+        Me.WebView21.Location = New System.Drawing.Point(100, 22)
         Me.WebView21.Name = "WebView21"
         Me.WebView21.Size = New System.Drawing.Size(524, 408)
         Me.WebView21.TabIndex = 8
         Me.WebView21.ZoomFactor = 1.0R
         '
-        'Button1
+        'WebView22
         '
-        Me.Button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.Button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button1.ForeColor = System.Drawing.Color.CornflowerBlue
-        Me.Button1.Location = New System.Drawing.Point(191, 445)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(112, 45)
-        Me.Button1.TabIndex = 11
-        Me.Button1.Text = "PLAY"
-        Me.Button1.UseVisualStyleBackColor = True
-        '
-        'ComboBox1
-        '
-        Me.ComboBox1.BackColor = System.Drawing.Color.Black
-        Me.ComboBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.ComboBox1.ForeColor = System.Drawing.Color.CornflowerBlue
-        Me.ComboBox1.FormattingEnabled = True
-        Me.ComboBox1.Location = New System.Drawing.Point(357, 464)
-        Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(153, 24)
-        Me.ComboBox1.TabIndex = 12
-        '
-        'LinkLabel2
-        '
-        Me.LinkLabel2.AutoSize = True
-        Me.LinkLabel2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!)
-        Me.LinkLabel2.LinkColor = System.Drawing.Color.Lime
-        Me.LinkLabel2.Location = New System.Drawing.Point(8, 474)
-        Me.LinkLabel2.Name = "LinkLabel2"
-        Me.LinkLabel2.Size = New System.Drawing.Size(209, 20)
-        Me.LinkLabel2.TabIndex = 15
-        Me.LinkLabel2.TabStop = True
-        Me.LinkLabel2.Text = "Launcher update available!"
-        Me.LinkLabel2.Visible = False
-        Me.LinkLabel2.VisitedLinkColor = System.Drawing.Color.Blue
-        '
-        'LinkLabel3
-        '
-        Me.LinkLabel3.AutoSize = True
-        Me.LinkLabel3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!)
-        Me.LinkLabel3.LinkColor = System.Drawing.Color.Lime
-        Me.LinkLabel3.Location = New System.Drawing.Point(8, 453)
-        Me.LinkLabel3.Name = "LinkLabel3"
-        Me.LinkLabel3.Size = New System.Drawing.Size(173, 20)
-        Me.LinkLabel3.TabIndex = 16
-        Me.LinkLabel3.TabStop = True
-        Me.LinkLabel3.Text = "Web update available!"
-        Me.LinkLabel3.Visible = False
-        Me.LinkLabel3.VisitedLinkColor = System.Drawing.Color.Blue
-        '
-        'ToolStripMenuItem3
-        '
-        Me.ToolStripMenuItem3.BackColor = System.Drawing.SystemColors.ActiveCaptionText
-        Me.ToolStripMenuItem3.ForeColor = System.Drawing.Color.CornflowerBlue
-        Me.ToolStripMenuItem3.Name = "ToolStripMenuItem3"
-        Me.ToolStripMenuItem3.Size = New System.Drawing.Size(224, 26)
-        Me.ToolStripMenuItem3.Text = "Add GD Entry"
+        Me.WebView22.AllowExternalDrop = True
+        Me.WebView22.CreationProperties = Nothing
+        Me.WebView22.DefaultBackgroundColor = System.Drawing.Color.White
+        Me.WebView22.Location = New System.Drawing.Point(11, 22)
+        Me.WebView22.Name = "WebView22"
+        Me.WebView22.Size = New System.Drawing.Size(83, 408)
+        Me.WebView22.TabIndex = 17
+        Me.WebView22.ZoomFactor = 1.0R
         '
         'Form1
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
         Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(784, 561)
-        Me.Controls.Add(Me.LinkLabel3)
-        Me.Controls.Add(Me.LinkLabel2)
-        Me.Controls.Add(Me.ComboBox1)
-        Me.Controls.Add(Me.Button1)
-        Me.Controls.Add(Me.LinkLabel1)
         Me.Controls.Add(Me.MenuStrip1)
+        Me.Controls.Add(Me.WebView22)
         Me.Controls.Add(Me.WebView21)
         Me.ForeColor = System.Drawing.Color.Black
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
@@ -374,11 +315,10 @@ Partial Class Form1
         Me.MenuStrip1.ResumeLayout(False)
         Me.MenuStrip1.PerformLayout()
         CType(Me.WebView21, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.WebView22, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
-    Friend WithEvents LinkLabel1 As LinkLabel
     Friend WithEvents MenuStrip1 As MenuStrip
     Friend WithEvents HelpToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents AboutToolStripMenuItem As ToolStripMenuItem
@@ -397,16 +337,13 @@ Partial Class Form1
     Friend WithEvents GD19ToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents WebView21 As Microsoft.Web.WebView2.WinForms.WebView2
-    Friend WithEvents Button1 As Button
     Friend WithEvents SettingsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem1 As ToolStripMenuItem
-    Friend WithEvents ComboBox1 As ComboBox
-    Friend WithEvents LinkLabel2 As LinkLabel
-    Friend WithEvents LinkLabel3 As LinkLabel
     Friend WithEvents BugReportToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents LogInToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem2 As ToolStripMenuItem
     Friend WithEvents CodebreakerToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents FlagsConsoleToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem3 As ToolStripMenuItem
+    Friend WithEvents WebView22 As Microsoft.Web.WebView2.WinForms.WebView2
 End Class

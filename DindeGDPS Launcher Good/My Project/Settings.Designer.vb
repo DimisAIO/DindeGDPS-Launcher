@@ -104,7 +104,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("none")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
         Public Property DfPS() As String
             Get
                 Return CType(Me("DfPS"),String)
@@ -176,7 +176,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Release")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Beta")>  _
         Public Property Channel() As String
             Get
                 Return CType(Me("Channel"),String)

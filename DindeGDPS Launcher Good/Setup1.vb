@@ -15,27 +15,6 @@ Public Class Setup1
 
         Title.Left = (Me.ClientSize.Width - Title.Width) \ 2
     End Sub
-
-    Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
-        If CheckBox1.Checked = True Then
-            Button1.Text = "Register"
-            Label3.Visible = True
-            Label4.Visible = True
-            Label5.Visible = True
-            TextBox3.Visible = True
-            TextBox4.Visible = True
-            TextBox5.Visible = True
-        Else
-            Button1.Text = "Login"
-            Label3.Visible = False
-            Label4.Visible = False
-            Label5.Visible = False
-            TextBox3.Visible = False
-            TextBox4.Visible = False
-            TextBox5.Visible = False
-        End If
-    End Sub
-
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         TextBox1.Enabled = False
         Dim code As String
@@ -93,7 +72,6 @@ Public Class Setup1
         ServicePointManager.SecurityProtocol = DirectCast(3072, SecurityProtocolType)
         Dim un = TextBox1.Text
         Dim pw = TextBox2.Text
-        Dim em = TextBox4.Text
         Dim lol As String
         Using client As New Net.WebClient
             Dim reqparm As New Specialized.NameValueCollection
@@ -102,17 +80,6 @@ Public Class Setup1
             reqparm.Add("password", pw)
 
             Dim s As String
-            If CheckBox1.Checked Then
-                s = "https://gdps.dimisaio.be/database/accounts/registerGJAccount.php"
-                reqparm.Add("email", em)
-
-                Dim responsebytes = client.UploadValues(s, "POST", reqparm)
-                lol = (New Text.UTF8Encoding).GetString(responsebytes)
-
-                If lol.StartsWith("-") Then
-                    Return lol
-                End If
-            End If
 
             reqparm.Remove("email")
             s = "https://gdps.dimisaio.be/api/getToken.php"
@@ -124,4 +91,8 @@ Public Class Setup1
 
         Return lol
     End Function
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Process.Start("https://gdps.dimisaio.be/database/dashboard/login/register.php")
+    End Sub
 End Class

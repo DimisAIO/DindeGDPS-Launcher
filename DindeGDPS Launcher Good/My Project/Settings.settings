@@ -15,7 +15,7 @@
       <Value Profile="(Default)">CornflowerBlue</Value>
     </Setting>
     <Setting Name="DfPS" Type="System.String" Scope="User">
-      <Value Profile="(Default)">none</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="IAmNotStupid" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -33,7 +33,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="Channel" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Release</Value>
+      <Value Profile="(Default)">Beta</Value>
     </Setting>
     <Setting Name="Simple" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

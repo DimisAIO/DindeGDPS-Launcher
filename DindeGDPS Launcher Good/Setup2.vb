@@ -2,36 +2,6 @@
 
 Public Class Setup2
     Dim ok As Boolean
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Form1.ComboBox1.Text = "gd20"
-        My.Settings.DfPS = "gd20"
-        My.Settings.Save()
-        Form4.PSInst("gd20")
-        Form4.Button1.Text = "Uninstall"
-        ok = True
-        Close()
-    End Sub
-
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Form1.ComboBox1.Text = "gd21"
-        My.Settings.DfPS = "gd21"
-        My.Settings.Save()
-        Form4.PSInst("gd21")
-        Form4.Button2.Text = "Uninstall"
-        ok = True
-        Close()
-    End Sub
-
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
-        Form1.ComboBox1.Text = "gd22"
-        My.Settings.DfPS = "gd22"
-        My.Settings.Save()
-        Form4.PSInst("gd22")
-        Form4.Button3.Text = "Uninstall"
-        ok = True
-        Close()
-    End Sub
-
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
         My.Settings.DisableUpd = Not CheckBox1.Checked
         My.Settings.Save()
@@ -53,6 +23,9 @@ Public Class Setup2
     Private Sub Setup2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CheckBox1.Checked = Not My.Settings.DisableUpd
         CheckBox2.Checked = My.Settings.CustomGDPS
+        For Each item As Object In Form4.ComboBox1.Items
+            ComboBox2.Items.Add(item)
+        Next
     End Sub
 
     Private Sub Setup2_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
@@ -78,16 +51,9 @@ Public Class Setup2
     End Sub
 
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        ' Why did I think this was a good idea
-        ' Dim asking = MsgBox("DindeGDPS recommends installing PlatinumGDPS alongside DindeGDPS 1.9" + nl + "Do you want to check out their website? " + nl + " (Clicking yes will enable the dgdps protocol)", vbYesNo + vbQuestion + "Recommendation for 1.9 players")
-        ' If asking = vbYes Then
-        '   Process.Start("https://platinum.141412.xyz")
-        '   RegisterProtocol()
-        ' End If
-        Form1.ComboBox1.Text = "gd19"
-        My.Settings.DfPS = "gd19"
+        Form4.ComboBox1.Text = ComboBox2.Text
         My.Settings.Save()
-        Form4.PSInst("gd19")
+        Form4.PSInst()
         Form4.Button8.Text = "Uninstall"
         ok = True
         Close()

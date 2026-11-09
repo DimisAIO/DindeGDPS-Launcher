@@ -1,4 +1,8 @@
 ﻿Imports System.IO
+Imports System.Net
+Imports System.Text
+Imports System.Threading.Tasks
+Imports Microsoft.VisualBasic.Logging
 Imports Microsoft.Web.WebView2.Core
 Imports Newtonsoft.Json
 
@@ -50,37 +54,43 @@ Public Class Loader
 
     Public Async Function Hello(Optional RestartBrowser As Boolean = False) As Threading.Tasks.Task
         If String.IsNullOrEmpty(My.Settings.token) Then Return
-        ' Is it me you're looking for?
-        Using client As New Net.WebClient
-            Dim reqparm As New Specialized.NameValueCollection
 
-            reqparm.Add("token", My.Settings.token)
+        Using client As New Net.Http.HttpClient
+            Dim reqparm As New Dictionary(Of String, String) From {{"token", My.Settings.token}}
+            Dim content1 = New Net.Http.FormUrlEncodedContent(reqparm)
+            Dim content2 = New Net.Http.FormUrlEncodedContent(reqparm)
+            Dim content3 = New Net.Http.FormUrlEncodedContent(reqparm)
 
-            Dim s As String = "https://gdps.dimisaio.be/api/checkUsername.php"
-            Dim s2 As String = "https://gdps.dimisaio.be/api/checkRates.php"
-            Dim s3 As String = "https://gdps.dimisaio.be/api/getSettings.php"
+            Dim s = "https://gdps.dimisaio.be/api/checkUsername.php"
+            Dim s2 = "https://gdps.dimisaio.be/api/checkRates.php"
+            Dim s3 = "https://gdps.dimisaio.be/api/getSettings.php"
+
             Try
-                Dim responsebytes = Await client.UploadValuesTaskAsync(New Uri(s), "POST", reqparm)
-                Dim responsebytes2 = Await client.UploadValuesTaskAsync(New Uri(s2), "POST", reqparm)
-                Dim responsebytes3 = Await client.UploadValuesTaskAsync(New Uri(s3), "POST", reqparm)
-                Dim res = (New Text.UTF8Encoding).GetString(responsebytes)
-                Dim res2 = (New Text.UTF8Encoding).GetString(responsebytes2)
-                Dim res3 = (New Text.UTF8Encoding).GetString(responsebytes3)
-                If res.ToString.ToLower <> My.Settings.Player.ToLower Then
+                Dim t1 = client.PostAsync(s, content1)
+                Dim t2 = client.PostAsync(s2, content2)
+                Dim t3 = client.PostAsync(s3, content3)
+
+                Await Task.WhenAll(t1, t2, t3)
+
+                Dim res = Await t1.Result.Content.ReadAsStringAsync()
+                Dim res2 = Await t2.Result.Content.ReadAsStringAsync()
+                Dim res3 = Await t3.Result.Content.ReadAsStringAsync()
+
+                If res.ToLower() <> My.Settings.Player.ToLower() Then
                     My.Settings.Player = res
-                    Form1.WebView21.CoreWebView2.Settings.UserAgent = "UneTesla-" + Origine + "-" + res
+                    Form1.WebView21.CoreWebView2.Settings.UserAgent = $"UneTesla-{Origine}-{res}"
                     If RestartBrowser Then Form1.WebView21.CoreWebView2.Reload()
                 End If
-                If res2.ToString = "1" Then
-                    SayHi = True
-                End If
-                If Not String.IsNullOrEmpty(res3.ToString) AndAlso My.Settings.Sync Then
-                    Dim Settings As Settings = JsonConvert.DeserializeObject(Of Settings)(res3.ToString)
-                    My.Settings.Color = Settings.color
-                    My.Settings.Language = Settings.lang
-                    My.Settings.CloseLauncher = Convert.ToBoolean(Settings.closeOP)
-                    My.Settings.ComboPos = Settings.barPos
-                    ApplyColor(Settings.color)
+
+                SayHi = (res2 = "1")
+
+                If Not String.IsNullOrEmpty(res3) AndAlso My.Settings.Sync Then
+                    Dim settings As Settings = JsonConvert.DeserializeObject(Of Settings)(res3)
+                    My.Settings.Color = settings.color
+                    My.Settings.Language = settings.lang
+                    My.Settings.CloseLauncher = Convert.ToBoolean(settings.closeOP)
+                    My.Settings.ComboPos = settings.barPos
+                    ApplyColor(settings.color)
                     Form1.Form1_Resize(Nothing, Nothing)
                     My.Settings.Save()
                 End If
@@ -105,10 +115,10 @@ Public Class Loader
                 Environment.Exit(0)
             Else
                 If Form5.Success Then
-                    Dim Lol As New ProClient
-                    Lol.SendMessage("what")
+                    Process.GetProcessById(Path.Combine(RootFS, ".lock")).Close()
+                    File.Delete(Path.Combine(RootFS, ".lock"))
+                    Application.Restart()
                 End If
-                Environment.Exit(0)
             End If
         End If
 
@@ -117,11 +127,12 @@ Public Class Loader
             Dim s = MsgBox("DindeGDPS is already running. Stop current process and start a new one?", vbYesNo + vbQuestion, "DindeGDPS is already running")
             If s = vbNo Then
                 Application.Exit() ' bye :3
+                Return
             Else
-                Dim Proc As New ProClient()
-                Proc.SendMessage("die")
+                Process.GetProcessById(File.ReadAllText(Path.Combine(RootFS, ".lock"))).CloseMainWindow()
             End If
         End If
+        File.WriteAllText(Path.Combine(RootFS, ".lock"), Process.GetCurrentProcess.Id)
     End Sub
     Private Async Sub Loader_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         If My.Settings.persistorperish <> False Then
@@ -130,8 +141,6 @@ Public Class Loader
             My.Settings.Save()
             ' Thanks to the huge rework, this shouldn't be needed to be changed
         End If
-
-        CheckForUpdates()
 
         Dim MyFile = Path.Combine(RootFS, "patchnote.txt")
         If (File.Exists(MyFile)) Then
@@ -152,6 +161,7 @@ Public Class Loader
             Else
                 OpenWait(Setup1)
             End If
+            AgeInformation.ShowDialog()
             OpenWait(Setup2)
             PremierCheck = True
         End If
@@ -195,44 +205,73 @@ Public Class Loader
                 Return
             Else
                 Await Hello()
-                ' i think it's useless
-                Dim DuoLingo As New CoreWebView2EnvironmentOptions()
-                DuoLingo.Language = SafeGuardLang(My.Settings.Language)
-                Dim WebViewSettings = Await CoreWebView2Environment.CreateAsync(
-                    Nothing, Nothing,
-                    DuoLingo)
+
+                Dim lang As String = SafeGuardLang(My.Settings.Language)
+
+                Form1.WebView21.CreationProperties =
+    New Microsoft.Web.WebView2.WinForms.CoreWebView2CreationProperties With {
+        .Language = lang
+    }
+
+                Form1.WebView22.CreationProperties =
+    New Microsoft.Web.WebView2.WinForms.CoreWebView2CreationProperties With {
+        .Language = lang
+    }
+
                 Await Form1.WebView21.EnsureCoreWebView2Async()
+                Await Form1.WebView22.EnsureCoreWebView2Async()
+
+                AddHandler Form1.WebView21.CoreWebView2.WebResourceRequested, AddressOf WebResourceRequested
+
+                Form1.WebView21.CoreWebView2.AddWebResourceRequestedFilter(
+    "https://dindegdps.localhost/*",
+    CoreWebView2WebResourceContext.All)
+
+                Form1.WebView21.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                    "dindegdps.141412.xyz",
+                    Path.Combine(RootFS, "web"),
+                    CoreWebView2HostResourceAccessKind.Allow)
+
                 Form1.WebView21.CoreWebView2.Settings.UserAgent = "UneTesla-" + Origine + "-" + player
+
+                Form1.WebView21.CoreWebView2.Navigate("https://dindegdps.141412.xyz/index.html")
+                Form1.WebView22.CoreWebView2.Navigate("file:///" & RootFS & "/web/sidebar.html")
+
             End If
         End If
 
         ApplyColor(My.Settings.Color)
+        CheckForUpdates()
 
         ' Get the directory names from RefreshGDPS
         Dim directoryArray As String() = RefreshGDPS()
 
         ' Add each directory name as a ToolStripMenuItem to the ContextMenuStrip
         For Each directoryName As String In directoryArray
-            Dim menuItem As New ToolStripMenuItem("Play " + directoryName)
+            Dim Zemel = VersionParser.RealToReadable(directoryName)
+            Dim IsOfficial As Boolean = VersionParser.official.Contains(directoryName)
+            If Not IsOfficial Then VersionParser.unofficial.Add(directoryName)
+            Dim menuItem As New ToolStripMenuItem("Play " + Zemel)
             AddHandler menuItem.Click, AddressOf MenuItem_Click
             ContextMenuStrip1.Items.Add(menuItem)
+            If My.Settings.Simple Then
+                Simple.ComboBox1.Items.Add(Zemel)
+            End If
         Next
 
         Dim exitItem As New ToolStripMenuItem("Exit")
         AddHandler exitItem.Click, AddressOf MenuItem_Click
         ContextMenuStrip1.Items.Add(exitItem)
+        Hide()
 
         If My.Settings.Simple = True Then
-            Simple.ComboBox1.Items.AddRange(RefreshGDPS())
+            ' Already done few lines above Simple.ComboBox1.Items.AddRange(directoryArray)
             Simple.ComboBox1.Text = My.Settings.DfPS
-            Hide()
             Simple.Show()
         Else
-            MiniRefreshGDPS()
+            Task.Run(Sub() MiniRefreshGDPS())
 
-            Form1.ComboBox1.Text = My.Settings.DfPS
-
-            Form1.ComboBox1.Items.AddRange(RefreshGDPS())
+            Form4.ComboBox1.Text = My.Settings.DfPS
 
             Form1.Form1_Resize(sender, e)
 
@@ -245,14 +284,86 @@ Public Class Loader
             End If
 
             ' Greeting has been implemented on index.html instead
-
-            Hide()
-
             Form1.Show()
         End If
 
         If PremierCheck = False Then
             dogcheck() ' hall of dog
+        End If
+
+    End Sub
+
+    Private Function StreamString(MyString As String) As MemoryStream
+        Return New MemoryStream(Encoding.UTF8.GetBytes(MyString))
+    End Function
+    Private Sub WebResourceRequested(
+    sender As Object,
+    e As CoreWebView2WebResourceRequestedEventArgs)
+        Debug.WriteLine("CAUGHT: " & e.Request.Uri)
+
+        If e.Request.Uri.StartsWith("https://dindegdps.localhost/get/") Then
+            Dim headers =
+                "Content-Type: text/plain" & vbCrLf &
+                "Access-Control-Allow-Origin: https://dindegdps.141412.xyz" & vbCrLf &
+                "Access-Control-Allow-Methods: GET, POST, OPTIONS" & vbCrLf &
+                "Access-Control-Allow-Headers: Content-Type"
+
+            Dim setting = e.Request.Uri.Substring(32)
+
+            Dim stream As MemoryStream
+
+            Dim serializer As New JsonSerializer()
+
+            Dim sw As New StringWriter()
+
+            Select Case True
+                Case setting.Equals("gdps")
+                    Dim items As New List(Of String)
+                    For Each GDPS In RefreshGDPS()
+                        items.Add(RealToReadable(GDPS))
+                    Next
+
+                    Using writer As New JsonTextWriter(sw)
+                        writer.Formatting = Formatting.Indented
+
+                        serializer.Serialize(writer, items)
+                    End Using
+
+                    stream = StreamString(sw.ToString())
+                Case setting.StartsWith("img")
+                    Dim ipath = ReadableToReal(WebUtility.UrlDecode(setting.Substring(4)))
+                    headers =
+                         "Content-Type: image/png" & vbCrLf &
+                         "Access-Control-Allow-Origin: https://dindegdps.141412.xyz" & vbCrLf &
+                         "Access-Control-Allow-Methods: GET, POST, OPTIONS" & vbCrLf &
+                         "Access-Control-Allow-Headers: Content-Type"
+                    stream = New MemoryStream(File.ReadAllBytes(Path.Combine(RootFS, ipath, "logo.png")))
+                Case setting.Equals("color")
+                    stream = StreamString(My.Settings.Color)
+                Case setting.Equals("settings")
+                    Dim settings As New Dictionary(Of String, Object) From {
+                        {"cupdates", Not My.Settings.DisableUpd},
+                        {"clauncher", My.Settings.CloseLauncher},
+                        {"uchannel", My.Settings.Channel},
+                        {"lang", Origine},
+                        {"sync", My.Settings.Sync},
+                        {"color", My.Settings.Color},
+                        {"barPos", My.Settings.ComboPos}
+                    }
+
+                    Dim json As String = JsonConvert.SerializeObject(settings)
+                    stream = StreamString(json)
+                Case Else
+                    stream = StreamString(setting)
+            End Select
+
+            e.Response =
+                Form1.WebView21.CoreWebView2.Environment.CreateWebResourceResponse(
+                    stream,
+                    200,
+                    "OK",
+                    headers)
+
         End If
 
     End Sub

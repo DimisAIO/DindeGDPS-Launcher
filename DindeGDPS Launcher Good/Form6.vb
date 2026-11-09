@@ -60,7 +60,7 @@ Public Class Form6
                     End If
                     For Each InstItem As String In Command.Skip(2)
                         TextBox1.Text += "Processing " + InstItem + nl
-                        Dim Correct = {"gd19", "gd20", "gd21", "gd22"}
+                        Dim Correct = VersionParser.official
                         If Not Correct.Contains(InstItem) Then
                             TextBox1.Text += InstItem + " is not a valid version (gd19, gd20...)." + nl
                             Continue For
@@ -71,7 +71,8 @@ Public Class Form6
                                     Directory.Delete(Path.Combine(RootFS, InstItem), True)
                                 End If
                             Case "install", "update"
-                                Await Form4.PSInst(InstItem, True)
+                                Form4.ComboBox1.Text = VersionParser.RealToReadable(InstItem)
+                                Await Form4.PSInst(True)
                         End Select
                         TextBox1.Text += InstItem + " has been processed successfully" + nl
                     Next

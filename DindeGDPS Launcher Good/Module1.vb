@@ -106,8 +106,9 @@ Public Module Module1
     End Sub
     Public Sub Play(PS As String, code As Keys) ' le parti socialiste
         My.Settings.DfPS = PS
+        PS = VersionParser.ReadableToReal(PS)
         My.Settings.Save()
-        Dim official As String() = {"gd19", "gd20", "gd21", "gd22", "gd22-old"}
+        Dim official = VersionParser.official
         If Not official.Any(Function(value) PS = value) And My.Settings.IAmNotStupid = False Then
             Dim n = MsgBox("This is a custom, modded version of DindeGDPS (or another GDPS) and thus not by DimisAIO. Do you want to run this version? This message will not show up again once you click ""Yes""", vbYesNo + vbExclamation, "Modded version detected")
             If n = vbNo Then
@@ -137,6 +138,7 @@ Public Module Module1
         Dim startupNode As XmlNode = configElement.SelectSingleNode("startup")
         Dim SM = ""
         Dim Principal = ""
+
         If code = Keys.Control Then
             Dim List = ""
             Dim files() As String
@@ -280,13 +282,7 @@ Public Module Module1
     End Sub
 
     Public Function SafeGuardLang(Langue As String)
-        Dim languages = My.Computer.FileSystem.ReadAllText(Path.Combine(RootFS, "web", "installed_langs.txt")).Split("/")
-        For Each language In languages
-            If language = Langue Then
-                Return Langue
-            End If
-        Next
-        Return "en"
+        Return If(File.Exists(Path.Combine(RootFS, "web", "languages", Langue & ".json")), Langue, "en")
     End Function
 
     ' wtf am i doing
@@ -297,34 +293,44 @@ Public Module Module1
     End Sub
 
     Async Function JeMoeder(u As String) As Task(Of String)
+        Try
+            ServicePointManager.SecurityProtocol = DirectCast(3072, SecurityProtocolType)
+            Dim res As String
+            ' Create a web request
+            Dim request As HttpWebRequest = CType(WebRequest.Create(u), HttpWebRequest)
 
-        ServicePointManager.SecurityProtocol = DirectCast(3072, SecurityProtocolType)
-        Dim res As String
-        ' Create a web request
-        Dim request As HttpWebRequest = CType(WebRequest.Create(u), HttpWebRequest)
-
-        ' Get the response
-        Dim response As HttpWebResponse = CType(Await request.GetResponseAsync(), HttpWebResponse)
+            ' Get the response
+            Dim response As HttpWebResponse = CType(Await request.GetResponseAsync(), HttpWebResponse)
 
 
-        ' Read the response stream
-        Using streamReader As New StreamReader(response.GetResponseStream())
-            ' Read the first line of the response
-            res = streamReader.ReadLine()
+            ' Read the response stream
+            Using streamReader As New StreamReader(response.GetResponseStream())
+                ' Read the first line of the response
+                res = streamReader.ReadLine()
 
-            ' Handle the first line as needed
-            Console.WriteLine("First line of response: " & res)
-        End Using
+                ' Handle the first line as needed
+                Console.WriteLine("First line of response: " & res)
+            End Using
 
-        ' Close the response
-        response.Close()
+            ' Close the response
+            response.Close()
 
-        Return res
+            Return res
+        Catch ex As Exception
+            Console.WriteLine("suka " & ex.Message)
+        End Try
     End Function
     Public Function IsOnlyInstance() As Boolean
         ' Check if another instance is running
-        Dim processes As Process() = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName)
-        Return processes.Length = 1
+        Try
+            Dim ProcessId = Integer.Parse(File.ReadAllText(Path.Combine(RootFS, ".lock")))
+            Return Not String.Equals(
+                    Process.GetProcessById(ProcessId).MainModule.FileName,
+                    Application.ExecutablePath,
+                    StringComparison.OrdinalIgnoreCase)
+        Catch ex As Exception
+            Return True
+        End Try
     End Function
 
     Public Function DownloadXmlContent(url As String) As String
@@ -384,7 +390,7 @@ Public Module Module1
         ' Check if the directory exists
         If Directory.Exists(directoryPath) Then
             ' Get all directories in the specified path
-            Dim allDirectories As String() = Directory.GetDirectories(directoryPath)
+            Dim allDirectories As String() = Directory.GetDirectories(directoryPath).OrderByDescending(Function(d) Directory.GetLastWriteTime(d)).ToArray()
 
             ' Filter directories that contain an info.xml file
             Dim filteredDirectories As IEnumerable(Of String) = allDirectories.
@@ -424,37 +430,22 @@ Public Module Module1
                 xml.Load(fp)
                 Dim config As XmlElement = xml.DocumentElement
                 Dim gdpsname = config.SelectSingleNode("game").InnerText
-                ' MsgBox(gdpsname)
+                Dim IsOfficial As Boolean = VersionParser.official.Contains(gdpsname)
                 Dim test = Await GDPSVerCheck(gdpsname, False)
 
                 If test = False Then
-                    Dim o = True
-                    Dim gdpstitle As String
-                    Select Case gdpsname
-                        Case "gd19"
-                            gdpstitle = "DindeGDPS 1.9"
-                        Case "gd20"
-                            gdpstitle = "DindeGDPS 2.0"
-                        Case "gd21"
-                            gdpstitle = "DindeGDPS 2.1"
-                        Case "gd22"
-                            gdpstitle = "DindeGDPS 2.2"
-                        Case Else
-                            gdpstitle = gdpsname
-                            o = False
-                    End Select
-
-                    If o Then
+                    Dim gdpstitle As String = VersionParser.RealToReadable(gdpsname)
+                    If IsOfficial Then
                         offcount += 1
                         offtitle = gdpstitle
                     Else
                         Notify("New update available!", gdpstitle & " got a new update! Go to the GDPS' download page or ask the owner for a link of the update!", "Nothing")
+                        End If
                     End If
                 End If
-            End If
 
-            ' Get subdirectories and add them to the stack for further checking
-            Try
+                ' Get subdirectories and add them to the stack for further checking
+                Try
                 Dim subDirectories As String() = Directory.GetDirectories(currentDirectory)
                 For Each subDirectory As String In subDirectories
                     directoriesToCheck.Push(subDirectory)
@@ -478,7 +469,7 @@ Public Module Module1
         End If
     End Function
 
-    Public Function MiniRefreshGDPS()
+    Public Async Sub MiniRefreshGDPS()
         ' Get an array of directory names that start with "gd"
         Dim directoryArray As String() = GetDirKeyword(RootFS)
         If Not My.Settings.Simple Then
@@ -488,26 +479,10 @@ Public Module Module1
                 End If
             Next
         End If
-    End Function
+    End Sub
     Public Function RefreshGDPS()
         ' Get an array of directory names that start with "gd"
-        Dim directoryArray As String() = GetDirKeyword(RootFS)
-
-        Dim test As String = ""
-        If Not File.Exists(Path.Combine(RootFS, "web", "list.js")) And Not My.Settings.Simple And directoryArray.Length > 0 Then
-            For Each gdps In directoryArray
-                test += gdps & "||"
-                If Not File.Exists(Path.Combine(RootFS, gdps, "logo.png")) Then
-                    File.Copy(Path.Combine(RootFS, "default.png"), Path.Combine(RootFS, gdps, "logo.png"))
-                End If
-            Next
-            test = test.Substring(0, test.Length - 2)
-            test = $"const gdpses = `{test}`"
-            File.WriteAllText(Path.Combine(RootFS, "web", "list.js"), test)
-        End If
-
-        ' Populate the ComboBox with the filtered directory names
-        Return directoryArray
+        Return GetDirKeyword(RootFS)
     End Function
 
     Public Function RegisterProtocol()
@@ -674,7 +649,7 @@ Public Module Module1
                 If My.Settings.Simple = True Then
                     Simple.LinkLabel1.Visible = True
                 Else
-                    Form1.LinkLabel2.Visible = True
+                    Form1.ShowUpdateLogo()
                 End If
                 Return
             End If
@@ -707,7 +682,7 @@ Public Module Module1
             If String.IsNullOrEmpty(DownloadLink) Then
                 Return
             Else
-                Form1.LinkLabel3.Visible = True
+                Form1.ShowUpdateLogo()
                 NextWebVersion = Update.Version
             End If
         Next
@@ -757,7 +732,14 @@ Public Module Module1
         NextWebVersion = ""
         My.Settings.Save()
         Form1.GoHome()
-        Form1.LinkLabel3.Hide()
+    End Sub
+
+    Public Sub UpdateFromWebClient()
+        If Not String.IsNullOrEmpty(UpdateUrl) Then
+            UpdateLauncher()
+        ElseIf Not String.IsNullOrEmpty(NextWebVersion) Then
+            UpdateWeb()
+        End If
     End Sub
 End Module
 

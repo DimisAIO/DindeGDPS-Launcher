@@ -72,7 +72,7 @@ Public Class Form3
         End If
         Select Case TextBox1.Text.ToLower
             Case "red"
-                Dim red = MsgBox($"We use Red to color buttons or text in order to notify you about something important.{nl}Are you sure you want to continue?", vbYesNo + vbExclamation, "DindeGDPS Launcher")
+                Dim red = MsgBox($"We use Red to color important buttons or text!{nl}Are you sure you want to continue?", vbYesNo + vbExclamation, "DindeGDPS Launcher")
                 If red = vbNo Then
                     Return
                 End If
@@ -110,7 +110,19 @@ Public Class Form3
         End If
         Dim wc As New Net.WebClient
         ' OMG KILL YOURSELF wc.DownloadFile(TextBox2.Text, "gdps\Resources\menuLoop.mp3")
-        Await wc.DownloadFileTaskAsync(mus, Path.Combine(val, "Resources", "menuLoop.mp3"))
+        ' why was I this edgy before...
+        Try
+            If mus.StartsWith("http") Then
+                Await wc.DownloadFileTaskAsync(mus, Path.Combine(val, "Resources", "menuLoop.mp3"))
+            ElseIf File.Exists(mus) Then
+                ' Local file support!
+                File.Copy(mus, Path.Combine(val, "Resources", "menuLoop.mp3"), True)
+            Else
+                Throw New Exception("Neither a direct link nor a local file could be provided.")
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message, MsgBoxStyle.Critical + MsgBoxStyle.OkOnly, "Menuloop Error!")
+        End Try
         MsgBox("Downloaded successfully!")
     End Sub
 
@@ -145,7 +157,8 @@ Public Class Form3
     End Sub
 
     Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
-        Process.Start("https://cdn.141412.xyz/menuloops")
+        ' an ACTUAL good menuloop hoster
+        Process.Start("https://songfilehub.com/songs")
     End Sub
 
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
@@ -203,5 +216,18 @@ Public Class Form3
     Private Sub CheckBox3_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox3.CheckedChanged
         My.Settings.Sync = CheckBox3.Checked
         My.Settings.Save()
+    End Sub
+
+    Private Sub LinkLabel3_LinkClicked_1(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel3.LinkClicked
+        ' Source - https://stackoverflow.com/a/27855008
+        ' Posted by hericson, modified by community. See post 'Timeline' for change history
+        ' Retrieved 2026-10-31, License - CC BY-SA 3.0
+
+        Dim ofd As OpenFileDialog = New OpenFileDialog
+        ofd.Filter = "MP3 Files|*.mp3"
+        ofd.Title = "Select your Menuloop!"
+        If ofd.ShowDialog() <> DialogResult.Cancel Then
+            TextBox2.Text = ofd.FileName
+        End If
     End Sub
 End Class
